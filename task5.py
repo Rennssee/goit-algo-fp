@@ -100,6 +100,12 @@ def draw_tree_traversals(min_heap):
 
 def draw_heap(heap_graph, pos, colors):
     labels = {node[0]: node[1].get("label", "") for node in heap_graph.nodes(data=True)}
+    nodes_order = [
+        node[0]
+        for node in sorted(
+            heap_graph.nodes(data=True), key=lambda x: x[1].get("label", "")
+        )
+    ]
     plt.figure(figsize=(8, 5))
     nx.draw(
         heap_graph,
@@ -107,7 +113,8 @@ def draw_heap(heap_graph, pos, colors):
         labels=labels,
         arrows=False,
         node_size=2500,
-        node_color=list(colors.values()),
+        node_color=[colors[node] for node in nodes_order],
+        nodelist=nodes_order,
     )
     plt.show()
 

@@ -2,6 +2,7 @@ import heapq
 import uuid
 import networkx as nx
 import matplotlib.pyplot as plt
+from collections import deque
 
 
 class MinHeapNode:
@@ -9,46 +10,46 @@ class MinHeapNode:
         self.key = key
         self.color = color
         self.id = str(uuid.uuid4())
+        self.left = None
+        self.right = None
 
     def __lt__(self, other):
         return self.key < other.key
 
 
-def add_heap_edges(graph, heap, pos, x=0, y=0, parent_idx=0):
-    if parent_idx < len(heap):
-        node = heap[parent_idx]
+def build_heap_tree(heap_array):
+    min_heap = [MinHeapNode(key) for key in heap_array]
+    for i in range(len(min_heap)):
+        if i * 2 + 1 < len(min_heap):
+            min_heap[i].left = min_heap[i * 2 + 1]
+        if i * 2 + 2 < len(min_heap):
+            min_heap[i].right = min_heap[i * 2 + 2]
+    return min_heap[0]
+
+
+def add_edges(graph, node, pos, x=0, y=0, layer=1):
+    if node is not None:
         graph.add_node(node.id, color=node.color, label=node.key)
-
-        left_child_idx = 2 * parent_idx + 1
-        right_child_idx = 2 * parent_idx + 2
-
-        if left_child_idx < len(heap):
-            left_child = heap[left_child_idx]
-            graph.add_edge(node.id, left_child.id)
-            l = x - 1 / 2 ** (y + 1)
-            pos[left_child.id] = (l, y - 1)
-            add_heap_edges(graph, heap, pos, x=l, y=y - 1, parent_idx=left_child_idx)
-
-        if right_child_idx < len(heap):
-            right_child = heap[right_child_idx]
-            graph.add_edge(node.id, right_child.id)
-            r = x + 1 / 2 ** (y + 1)
-            pos[right_child.id] = (r, y - 1)
-            add_heap_edges(graph, heap, pos, x=r, y=y - 1, parent_idx=right_child_idx)
+        if node.left:
+            graph.add_edge(node.id, node.left.id)
+            l = x - 1 / 2**layer
+            pos[node.left.id] = (l, y - 1)
+            l = add_edges(graph, node.left, pos, x=l, y=y - 1, layer=layer + 1)
+        if node.right:
+            graph.add_edge(node.id, node.right.id)
+            r = x + 1 / 2**layer
+            pos[node.right.id] = (r, y - 1)
+            r = add_edges(graph, node.right, pos, x=r, y=y - 1, layer=layer + 1)
+    return graph
 
 
-def draw_heap(min_heap):
+def draw_heap(heap_tree_root):
     heap_graph = nx.DiGraph()
-    pos = {}
-    add_heap_edges(heap_graph, min_heap, pos)
+    pos = {heap_tree_root.id: (0, 0)}
+    heap_graph = add_edges(heap_graph, heap_tree_root, pos)
 
-    # Check if all nodes have positions, if not assign them
-    for node in heap_graph.nodes():
-        if node not in pos:
-            pos[node] = (0, 0)
-
-    colors = [heap_graph.nodes[node]["color"] for node in heap_graph.nodes()]
-    labels = {node: heap_graph.nodes[node]["label"] for node in heap_graph.nodes()}
+    colors = [node[1]["color"] for node in heap_graph.nodes(data=True)]
+    labels = {node[0]: node[1]["label"] for node in heap_graph.nodes(data=True)}
 
     plt.figure(figsize=(8, 5))
     nx.draw(
@@ -62,9 +63,10 @@ def draw_heap(min_heap):
     plt.show()
 
 
-# Потрібно створити список об'єктів MinHeapNode з купи
+# Побудова бінарної купи з заданого масиву
 heap_array = [1, 3, 5, 7, 9, 2, 4, 34, 2, 1, 2]
-min_heap = [MinHeapNode(key) for key in heap_array]
+heapq.heapify(heap_array)
+heap_tree_root = build_heap_tree(heap_array)
 
-# Відображення бінарної купи
-draw_heap(min_heap)
+# Візуалізація бінарної купи
+draw_heap(heap_tree_root)
