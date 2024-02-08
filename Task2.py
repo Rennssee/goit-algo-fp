@@ -1,40 +1,25 @@
 import turtle
+import math
 
-def draw_pythagoras_tree(branch_length, t, level):
+
+def draw_pythagoras_tree(x, y, length, angle, level):
     if level == 0:
         return
     else:
         # Draw the main branch
-        t.forward(branch_length)
-
-        # Save the current position and heading
-        pos = t.pos()
-        heading = t.heading()
+        x1 = x + length * math.cos(angle)
+        y1 = y + length * math.sin(angle)
+        turtle.penup()
+        turtle.goto(x, y)
+        turtle.pendown()
+        turtle.goto(x1, y1)
 
         # Draw the first sub-branch (left)
-        t.left(45)
-        draw_pythagoras_tree(0.6 * branch_length, t, level - 1)
-
-        # Return to saved position and heading
-        t.penup()
-        t.setpos(pos)
-        t.setheading(heading)
-        t.pendown()
+        draw_pythagoras_tree(x1, y1, 0.7 * length, angle - math.pi / 4, level - 1)
 
         # Draw the second sub-branch (right)
-        t.right(90)
-        draw_pythagoras_tree(0.6 * branch_length, t, level - 1)
+        draw_pythagoras_tree(x1, y1, 0.7 * length, angle + math.pi / 4, level - 1)
 
-        # Return to saved position and heading
-        t.penup()
-        t.setpos(pos)
-        t.setheading(heading)
-        t.pendown()
-
-        # Draw the third sub-branch (center)
-        t.left(45)
-        t.forward(branch_length * 0.6)
-        t.backward(branch_length * 0.6)
 
 # Get user input for recursion level
 while True:
@@ -45,17 +30,16 @@ while True:
         print("Please enter a valid integer.")
 
 # Set up the turtle
-my_turtle = turtle.Turtle()
-my_turtle.speed(2)  # You can adjust the speed if needed
+turtle.speed(2)  # You can adjust the speed if needed
 
-# Set the initial position
-my_turtle.left(90)
-my_turtle.penup()
-my_turtle.setpos(0, -200)
-my_turtle.pendown()
+# Set the initial position and heading
+turtle.penup()
+turtle.setpos(0, -200)
+turtle.setheading(90)  # Початковий кут нахилу 90 градусів (вгору)
+turtle.pendown()
 
 # Call the function to draw the Pythagoras tree with the specified recursion level
-draw_pythagoras_tree(100, my_turtle, recursion_level)
+draw_pythagoras_tree(0, -200, 100, 0, recursion_level)
 
 # Close the turtle graphics window when clicked
 turtle.exitonclick()

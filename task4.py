@@ -1,8 +1,8 @@
 import heapq
 import uuid
-
 import networkx as nx
 import matplotlib.pyplot as plt
+
 
 class MinHeapNode:
     def __init__(self, key, color="skyblue"):
@@ -12,6 +12,7 @@ class MinHeapNode:
 
     def __lt__(self, other):
         return self.key < other.key
+
 
 def add_heap_edges(graph, heap, pos, x=0, y=0, parent_idx=0):
     if parent_idx < len(heap):
@@ -38,19 +39,32 @@ def add_heap_edges(graph, heap, pos, x=0, y=0, parent_idx=0):
 
 def draw_heap(min_heap):
     heap_graph = nx.DiGraph()
-    pos = {node.id: (0, 0) for node in min_heap}
+    pos = {}
     add_heap_edges(heap_graph, min_heap, pos)
 
-    colors = [node[1].get('color', 'skyblue') for node in heap_graph.nodes(data=True)]
-    labels = {node[0]: node[1].get('label', '') for node in heap_graph.nodes(data=True)}
+    # Check if all nodes have positions, if not assign them
+    for node in heap_graph.nodes():
+        if node not in pos:
+            pos[node] = (0, 0)
+
+    colors = [heap_graph.nodes[node]["color"] for node in heap_graph.nodes()]
+    labels = {node: heap_graph.nodes[node]["label"] for node in heap_graph.nodes()}
 
     plt.figure(figsize=(8, 5))
-    nx.draw(heap_graph, pos=pos, labels=labels, arrows=False, node_size=2500, node_color=colors)
+    nx.draw(
+        heap_graph,
+        pos=pos,
+        labels=labels,
+        arrows=False,
+        node_size=2500,
+        node_color=colors,
+    )
     plt.show()
 
 
-# Створення бінарної купи
-min_heap = [MinHeapNode(8), MinHeapNode(5), MinHeapNode(7), MinHeapNode(3), MinHeapNode(1), MinHeapNode(6), MinHeapNode(4)]
+# Потрібно створити список об'єктів MinHeapNode з купи
+heap_array = [1, 3, 5, 7, 9, 2, 4, 34, 2, 1, 2]
+min_heap = [MinHeapNode(key) for key in heap_array]
 
 # Відображення бінарної купи
 draw_heap(min_heap)
